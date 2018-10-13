@@ -1,0 +1,18 @@
+!DOCTYPE html
+<html>
+    <head>
+        <title>WebThings</title>
+        <script src="vendor/requirejs/require.js"></script>
+    </head>
+    <body>
+        <script>
+            require.config({
+                paths: {
+                    text: "vendor/require/text.js",
+                    riot: "vendor/riot.js",
+                }
+            });
+            require(["main"], () => {});
+        </script>
+    </body>
+</html>
