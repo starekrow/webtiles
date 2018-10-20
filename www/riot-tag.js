@@ -10,16 +10,6 @@ define(function(require, exports, module) {
 
         tagparser: /<([a-z][a-z0-9]*-[-a-z0-9]+)[^>]*>/,
 
-        loadRiotTag: function(tag, loaded) 
-        {
-            require("text!tags/" + tag, function(tagdef) {
-                var r = riot.compile(tagdef);
-                loaded(r);    
-            }, function(err) {
-                loaded(null);
-            });
-        }
-
         load: function (name, req, onLoad, config) 
         {
             req(["text!tags/" + name + ".tag"], function(tagdef) {
@@ -31,9 +21,10 @@ define(function(require, exports, module) {
                 var mkloader = function(tag) {
                     return new Promise(function(res, rej) {
                         require("riot-tag!" + tag, function(tag) {
-                            
-                        })
-                        riot_tag.loadRiotTag(got, res);
+                            res(tag);
+                        }, function(err) {
+                            res(null);
+                        });
                     });
                 };
                 for(let tag;(tag = p.exec(tagdef));) {
@@ -43,20 +34,12 @@ define(function(require, exports, module) {
                     }
                 }
                 Promise.all(loaders).then(function() {
-                    riot_tag.loadRiotTag(got, function(tag) {
-
-                    })                    
-                    require("text!" + got, function(tag) {
-                        var r = riot.compile(tagdef);
-                        onLoad(r);    
-                    }, function(err) {
-                        res(null);
-                    });
+                    var r = riot.compile(tagdef);
+                    onLoad(r);
+                }, function(err) {
+                    var r = riot.compile(tagdef);
+                    onLoad(r);
                 });
-                riot_tag.tags
-            }, function(err) {
-                // hmm, didn't load
-                onLoad.error(err);
             });
          },
     }
