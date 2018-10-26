@@ -45,5 +45,3 @@ define(function(require, exports, module) {
     }
     return riot_tag;
 });
-
-})
