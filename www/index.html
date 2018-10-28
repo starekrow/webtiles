@@ -20,8 +20,10 @@
         <script>
             require.config({
                 paths: {
-                    text: "vendor/require/text",
+                    text: "vendor/requirejs/text",
                     riot: "vendor/riot",
+                },
+                shim: {
                 }
             });
             require(["main"], () => {});

@@ -8,19 +8,22 @@ define(function(require, exports, module) {
     var riot_tag = {
         version: "0.0.1",
 
-        tagparser: /<([a-z][a-z0-9]*-[-a-z0-9]+)[^>]*>/,
+        tagparser: /<([a-z][a-z0-9]*-[-a-z0-9]+)[^>]*>/g,
 
-        load: function (name, req, onLoad, config) 
+        loaded: {},
+
+        load: function (name, req, onLoad, config)
         {
-            req(["text!tags/" + name + ".tag"], function(tagdef) {
+            riot_tag.loaded[name] = true;
+            require(["text!tags/" + name + ".tag"], function(tagdef) {
                 // find any custom tags used in this tag, define them
-                // define the tag
                 var p = riot_tag.tagparser;
-                var loaders;
+                var loaders = [];
                 p.lastIndex = 0;
                 var mkloader = function(tag) {
+                    //console.log("Load dependent " + tag);
                     return new Promise(function(res, rej) {
-                        require("riot-tag!" + tag, function(tag) {
+                        require(["riot-tag!" + tag], function(tag) {
                             res(tag);
                         }, function(err) {
                             res(null);
@@ -28,20 +31,28 @@ define(function(require, exports, module) {
                     });
                 };
                 for(let tag;(tag = p.exec(tagdef));) {
-                    if (!riot_tag.loaded[tag]) {
-                        riot_tag.loaded[tag] = true;
-                        loaders.push(mkloader(tag));
+                    if (!riot_tag.loaded[tag[1]]) {
+                        riot_tag.loaded[tag[1]] = true;
+                        loaders.push(mkloader(tag[1]));
                     }
                 }
                 Promise.all(loaders).then(function() {
-                    var r = riot.compile(tagdef);
+                    try {
+                        // define the tag
+                        //console.log("Compile " + name);
+                        var r = riot.compile(tagdef);
+                    } catch (e) {
+                        //console.log("Compile " + name + "failed");
+                        //console.log(e);
+                    }
+                    //console.log("Compiled " + name + ", got " + r );
                     onLoad(r);
                 }, function(err) {
                     var r = riot.compile(tagdef);
                     onLoad(r);
                 });
             });
-         },
+        },
     }
     return riot_tag;
 });
