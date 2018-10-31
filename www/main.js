@@ -6,7 +6,7 @@ define(function(require) {
     var d = document.createElement("div");
     document.body.appendChild(d);
     try {
-        var tag = riot.mount(d, 'example-1')[0]
+        var tag = riot.mount(d, 'example-1')[0];
     } catch(e) {
         console.log( "Mount failed, " + e.toString());
     }
