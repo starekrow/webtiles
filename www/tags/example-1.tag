@@ -2,19 +2,19 @@
     Hi, Dave!
     <span ref=foo> more stuff here</span>
     <example-2></example-2>
-<style scoped>
+    <style scoped>
 
-    .scope {
-        font-size: 20px;
-        color: #f00;
-    }
+        .scope {
+            font-size: 20px;
+            color: #f00;
+        }
 
-</style>
-<script>
-    var my = this;
+    </style>
+    <script>
+        var my = this;
 
-    this.on("mount", function() {
-        my.refs.foo.innerHTML = " ahahahaha!";
-    });
-</script>
+        this.on("mount", () => {
+            my.refs.foo.innerHTML = " ahahahaha!";
+        })
+    </script>
 </example-1>
