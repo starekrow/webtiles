@@ -54,12 +54,12 @@ define(function(require) {
                 "password" => sf.password.value
             }).then(
                 result => {
-                    sf.loginResult = result;
+                    sf.loginResult.value = result;
                     app.homeScreen();
                 },
                 error => {
-                    sf.set("loginErrorMessage", error.message);
-                    sf.set("loginErrorCode", error.code);
+                    sf.loginErrorMessage.value = error.message;
+                    sf.loginErrorCode.value = error.code;
                 }
             );
         });
