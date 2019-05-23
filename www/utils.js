@@ -3,31 +3,27 @@ define(function(require) {
 
     var Utils = {};
 
-    _global.isArray = 
     Utils.isArray = function(val)
     {
-        return Object.toString.apply(val) === "[object Array]";
+        return Array.isArray(val);
+        //return Object.toString.apply(val) === "[object Array]";
     }
     
-    _global.isObject = 
-    Utils.isObject = function(val)
+\    Utils.isObject = function(val)
     {
         return val && typeof(val) === "object";
     }
 
-    _global.isString = 
     Utils.isString = function(val)
     {
         return typeof(val) === "string";
     }
 
-    _global.isNull = 
     Utils.isNull = function(val)
     {
         return val === null;
     }
 
-    _global.isUndefined = 
     Utils.isUndefined = function(val)
     {
         return typeof(val) === "undefined";

@@ -1,0 +1,33 @@
+<title-screen>
+    <img class=hero blah blah>
+    <div class=hero>
+    </div>
+    <mobile-input 
+        caption="Username"
+        type=username
+        field=username
+        help="Your username in the system"
+        tooltip=""
+        />
+    <mobile-input 
+        caption="Password"
+        type=password
+        field=password
+        help="Your password for the system"
+        tooltip=""
+        />
+    <mobile-button
+        label="Sign In"
+        field=title_signin
+        />
+    <style>
+        .hero {
+            width: 100%;
+
+        }
+    </style>
+    <script>
+        abra.bindFields(this.node, opts.fields)
+
+    </script>
+</title-screen>
