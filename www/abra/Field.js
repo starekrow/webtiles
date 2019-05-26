@@ -104,6 +104,10 @@ With the field mechanism as described here, it would be fairly simple to set up
 a mechanism to bind fields over a transport mechanism (network, shared memory,
 etc).
 
+The query mechanism can be also used to implement an application-level
+abstraction for an external API, with its explicit one-to-one binding of query
+actions to responses.
+
 ## Layered Abstractions
 
 One of the main advantages of the Field mechanism is that it provides a simple
@@ -111,11 +115,9 @@ and consistent way to "narrow the pipe" between different parts of your
 application. This is an excellent method for separating concerns within the
 codebase without sacrificing too much performance.
 
-## HTTP-style API
-
-field.emit
-
-
+The author's first use case involved separating view controller activity from
+application logic, but the mechanisms provided allow for a rich expression of a 
+contract between any sections of a program.
 
 */
 define(function(require) {
@@ -471,7 +473,25 @@ define(function(require) {
      */
     _public.query = function(query, result)
     {
-
+        var value = this._value;
+        var result = new Field();
+        schedule(() => {
+            if (typeof value == "function") {
+                let got = value(query);
+                if (got instanceof Field) {
+                    result.bind(got);
+                } else if (got && got.then) {
+                    got.then(value => {
+                        result.set(value);
+                    }, error => {
+                        result.set(error);
+                    })
+                }
+            } else {
+                result.value = value;
+            }
+        });
+        return result;
     }
 
     // TODO: _public.pause might be interesting
