@@ -9,24 +9,8 @@ define(function(require) {
 
     var _static = FieldSet;
     var _public = FieldSet.prototype;
-        
-    Object.assign(_static, {
-        T_NAMESPACE     :1,
-        T_FIELDSET      :2,
-        T_ANY           :3,
-        // T_SCALAR?
-        T_BOOL          :4,
-        T_INT           :5,
-        T_DOUBLE        :6,
-        T_STRING        :7,
-        T_ARRAY         :8,
-        T_DICT          :9,
-        T_COLOR         :10,
-        T_IMAGE         :11,
-        T_DATE          :12,
-        T_BLOB          :13,
-    });
 
+    
     _public.set = function(dest, value)
     {
         if (value === undefined) { 

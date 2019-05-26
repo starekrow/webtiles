@@ -59,6 +59,21 @@ to be built without requiring the programmer to explicitly clean up after them.
 It is also possible to release specific bindings, and to release all bindings to
 a field.
 
+### Queries
+
+It is possible to "query" a field for information. This mechanism can be used to
+disguise or normalize the interface to just about any query/response mechanism.
+The result of a query is another Field, which will be triggered with a value
+representing that query result.
+
+If a field's "value" is executable (for example, a function), then the field's
+"response" is the result of calling the function. If the result of that call is
+a Field, that field is bound to the result field. Promises are similarly bound
+so that they will trigger the field's value when resolved or rejected. 
+
+Non-executable field values return themselves as the result of a query; that is,
+the actual contents of the query are completely ignored.
+
 ## Triggers and Concurrence
 
 When a field is triggered, the handlers do not run immediately; instead, a
@@ -95,6 +110,11 @@ One of the main advantages of the Field mechanism is that it provides a simple
 and consistent way to "narrow the pipe" between different parts of your
 application. This is an excellent method for separating concerns within the
 codebase without sacrificing too much performance.
+
+## HTTP-style API
+
+field.emit
+
 
 
 */
@@ -136,6 +156,73 @@ define(function(require) {
             for (let h in hl) {
                 h(field);
             }
+        }
+    }
+
+    var abortField = function(field, seen)
+    {
+        seen[field] = true;
+        if (field.triggered) {
+            unschedule(field.triggered);
+            field.triggered = null;
+        }
+        if (field._timer) {
+            clearTimeout(field._timer);
+            field._timer = null;
+        }
+        if (field._bindings) {
+            for (let f in field._bindings) {
+                if (!(f in seen)) {
+                    abortField(f, seen);
+                }
+            }
+        }
+    }
+
+    /**
+     * Assigns a value for this field. 
+     * 
+     * The values for any bound fields are set as well.
+     * 
+     * @param Field field 
+     * @param mixed value 
+     * @param object seen 
+     */
+    var setRawValue = function(field, value, seen)
+    {
+        seen[field] = true;
+        field._value = value;
+        if (field._bindings) {
+            for (let f in field._bindings) {
+                if (!(f in seen)) {
+                    setRawValue(f, value, seen);
+                }
+            }
+        }
+    }
+
+   /**
+     * Assigns a value for this field. 
+     * 
+     * The values for any bound fields are set as well.
+     * 
+     * @param Field field 
+     * @param mixed value 
+     * @param object seen 
+     */
+    var triggerField = function(field)
+    {
+        if (!field.triggered) {
+            if (field._bindings) {
+                field.triggered = true;
+                for (let f in field._bindings) {
+                    f.trigger();
+                }
+            }
+            field.triggered = schedule(() => {
+                field.triggered = null;
+                invokeHandlers(field);
+            });
         }
     }
 
@@ -187,38 +274,7 @@ define(function(require) {
      */
     _public.trigger = function()
     {
-        if (!this.triggered) {
-            if (this._bindings) {
-                this.triggered = true;
-                for (let f in this._bindings) {
-                    f.trigger();
-                }
-            }
-            this.triggered = schedule(() => {
-                this.triggered = false;
-                invokeHandlers(this);
-            });
-        }
-    }
-
-    var abortField = function(field, seen)
-    {
-        if (field.triggered) {
-            unschedule(field.triggered);
-            field.triggered = null;
-        }
-        if (field._timer) {
-            clearTimeout(field._timer);
-            field._timer = null;
-        }
-        if (field._bindings) {
-            for (let f in field._bindings) {
-                if (!(f in seen)) {
-                    seen[f] = true;
-                    abortField(f, seen);
-                }
-            }
-        }
+        triggerField(this);
     }
 
     /**
@@ -237,8 +293,7 @@ define(function(require) {
      *
      * Equivalent to `thisField.rawValue = value`.
      *
-     * Any fields bound to this field have their value updated and are triggered
-     * as well.
+     * Any fields bound to this field have their value updated as well.
      */
     _public.setRaw = function(value)
     {
@@ -331,6 +386,10 @@ define(function(require) {
         this.stop();
         this._timer = setTimeout(() => {
             this._timer = null;
+            if (this.triggered) {
+                // take over the trigger
+                unschedule(this.triggered);
+            }
             this.triggered = true;
             if (this._bindings) {
                 for (let f in this._bindings) {
@@ -355,12 +414,16 @@ define(function(require) {
         this.stop();
         this._interval = setInterval(() => {
             this._interval = null;
+            if (this.triggered) {
+                // take over the trigger
+                unschedule(this.triggered);
+            }
             this.triggered = true;
             if (this._bindings) {
                 for (let f in this._bindings) {
                     f.trigger();
                 }
-            }
+            }    
             this.triggered = null;
             invokeHandlers(this);
         });
@@ -381,6 +444,34 @@ define(function(require) {
             clearTimeout(this._interval);
             this._interval = null;
         }
+    }
+
+    /**
+     * Start a query
+     *
+     * A field with an executable value can be queried for an answer. You supply
+     * a value representing the query, and the field's contents are executed
+     * with that value and are expected to supply a result.
+     *
+     * If the field value is not a function, it is just assigned to a new field
+     * and that field is scheduled to be triggered. Otherwise, the function is
+     * executed with the query. It may return a Promise or a Field; other types
+     * of values are considered to be "immediate" results and are scheduled to
+     * be triggered immediately.
+     *
+     * A query will automatically synthesize a new "result" Field that will be
+     * triggered with the result of the query, when it is available. If you
+     * supply a `result` field in the call to the query, your supplied field
+     * will be bound to the actual result field.
+     *
+     * Queries are not run "inline"; they are scheduled to be run at the next
+     * available execution slot.
+     *
+     * Returns the original result field.
+     */
+    _public.query = function(query, result)
+    {
+
     }
 
     // TODO: _public.pause might be interesting
