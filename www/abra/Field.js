@@ -5,6 +5,17 @@ The Field class represents a simple, functional interface for storing a value
 and triggering handlers when the value changes. Fields have a number of useful
 properties:
 
+### Value
+
+A field stores a single value, accessed through the `value` instance property.
+The value can be of any type supported by your implementation. Normally,
+assigning to the value (whether or not the assigned value is different from the
+previous value) will trigger the field.
+
+If you wish to set the field's value without triggering it, there is a
+`rawValue` instance property that will set and read the field value without
+triggering it.
+
 ### Trigger
 
 Every field has a "trigger", a flag that is set to indicate that something of
@@ -21,53 +32,70 @@ Fields can be triggered in a variety of ways:
 
 ### Handlers
 
-You can attach functions to a field that will be run whenever the field is 
-triggered. These functions are termed "handlers" because they handle the 
-results of whatever event led to the field being triggered.
+You can attach functions to a field that will be run whenever the field is
+triggered. These functions are termed "handlers" because they handle the results
+of whatever event led to the field being triggered.
 
 ### Timer
 
 Every field has a timer that can be set in milliseconds. Once the timer is set,
 it delays for the given amount of time and then triggers the field.
 
-The timer can also be set to repeat, so that it triggers the field at a given 
+The timer can also be set to repeat, so that it triggers the field at a given
 time interval.
 
 You can stop the timer at any time.
 
 ### Bindings
 
-It is possible to bind two fields together. Bound fields share a single value 
-and trigger, so that when either field's value is changed the other's changes 
-automatically with it, and when either field is triggered the other is 
-triggered at the same time.
+It is possible to bind two fields together. Bound fields share a single value
+and trigger, so that when either field's value is changed the other's changes
+automatically with it, and when either field is triggered the other is triggered
+at the same time.
 
 This binding between the fields is weak, which allows many kinds of asociations
 to be built without requiring the programmer to explicitly clean up after them.
 
-It is also possible to release specific bindings, and to release all bindings 
-to a field.
+It is also possible to release specific bindings, and to release all bindings to
+a field.
 
 ## Triggers and Concurrence
 
-When a field is triggered, the handlers do not run immediately; instead, a 
+When a field is triggered, the handlers do not run immediately; instead, a
 trigger event is added to the implementation's run queue, to be run in a new
-execution context as soon as possible. In addition, a field can only have one 
+execution context as soon as possible. In addition, a field can only have one
 trigger pending.
 
 This means that you can change a field's value many times in a single function,
 but it will only be triggered (and the handlers will only run) once.
 
-If you find yourself wanting to "shut down" a field after it might have been 
+If you find yourself wanting to "shut down" a field after it might have been
 triggered but before any of the handlers have run, there is an abort mechanism
 that will clear any pending trigger and also clear the field's timer.
 
-Setting a field's value within a trigger is guaranteed to trigger the field 
-again. It is also possible to manually trigger a field from within a trigger 
+Setting a field's value within a trigger is guaranteed to trigger the field
+again. It is also possible to manually trigger a field from within a trigger
 handler. You must take care not to create an infinite loop of field triggers.
 
 The interaction with bound fields and triggers is somewhat nuanced. When a field
-is triggered, its handlers will typically run *before* 
+is triggered, its handlers will typically run to completion before any of the
+bound fields' handlers are started. This can result in slightly different
+triggering behavior between the field that originates the trigger and the fields
+that are bound to it.
+
+## Remote Fields
+
+With the field mechanism as described here, it would be fairly simple to set up
+a mechanism to bind fields over a transport mechanism (network, shared memory,
+etc).
+
+## Layered Abstractions
+
+One of the main advantages of the Field mechanism is that it provides a simple
+and consistent way to "narrow the pipe" between different parts of your
+application. This is an excellent method for separating concerns within the
+codebase without sacrificing too much performance.
+
 
 */
 define(function(require) {
@@ -205,14 +233,14 @@ define(function(require) {
     }
 
     /**
-     * Assigns a value to the field and triggers it
-     * 
-     * Equivalent to `thisField.value = value`.
-     * 
-     * Any fields bound to this field have their value updated and are 
-     * triggered as well.
+     * Assigns a value to the field without triggering it
+     *
+     * Equivalent to `thisField.rawValue = value`.
+     *
+     * Any fields bound to this field have their value updated and are triggered
+     * as well.
      */
-    _public.set = function(value)
+    _public.setRaw = function(value)
     {
         if (value instanceof Field) {
             this._value = value._value;
@@ -224,6 +252,19 @@ define(function(require) {
                 f._value = this._value;
             }
         }
+    }
+
+    /**
+     * Assigns a value to the field and triggers it
+     * 
+     * Equivalent to `thisField.value = value`.
+     * 
+     * Any fields bound to this field have their value updated and are 
+     * triggered as well.
+     */
+    _public.set = function(value)
+    {
+        this.setRaw(value);
         this.trigger();
     }
 
@@ -349,7 +390,10 @@ define(function(require) {
         get: function() { return this._value; }
     });
 
-    // TODO: rawValue to assign without trigger?
+    Object.defineProperty(_public, 'rawValue', { 
+        set: _public.setRaw,
+        get: function() { return this._value; }
+    });
 
     Object.defineProperty(_public, 'stringValue', { 
         get: function() {
