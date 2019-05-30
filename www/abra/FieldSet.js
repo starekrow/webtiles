@@ -1,3 +1,47 @@
+/* Copyright (c) 2019 David O'Riva. MIT License.
+ ***********************************************
+
+A FieldSet provides organized storage for a group of fields. Fields within a 
+FieldSet are easily created and located, and you can create heirarchies of 
+fields as needed.
+
+A FieldSet is itself a field; it reports its value as a map of field names to field 
+objects, and it is not possible to directly assign a new value to it. 
+
+To reference a named field within a FieldSet, there are two possibilities:
+
+  * string lookup: myfieldset["name"]
+  * compiler lookup: myfieldset.name
+
+  * string lookup: myfieldset["name"]
+  * compiler lookup: myfieldset.name
+
+In order for this syntax to work, 
+
+
+## Binding FieldSets
+
+You can bind all fields in a fieldset to another fieldset. The syntax is:
+
+    myfieldset.$.bindAll(theirfieldset);
+    FieldSet.bindFrom(theirfieldset).to(myfieldset)
+    FieldSet.bindTo(myfieldset).from(theirfieldset)
+    myfieldset.bindFrom(theirfieldset);
+
+
+
+
+## Other commands
+
+    FieldSet.reset(myfieldset);
+    myfieldset.reset();
+
+    FieldSet.delete(myfieldset, fieldName);
+    myfieldset.delete(fieldName);
+
+    FieldSet.
+
+*/
 define(function(require) {
     'use strict';
     var Field = require("abra/Field");

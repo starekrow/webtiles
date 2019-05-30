@@ -48,23 +48,32 @@ You can stop the timer at any time.
 
 ### Bindings
 
-It is possible to bind two fields together. Bound fields share a single value
-and trigger, so that when either field's value is changed the other's changes
-automatically with it, and when either field is triggered the other is triggered
-at the same time.
+In a general sense, a Field can be bound to another object as a transmitter, a
+receiver, or both. In fact, it is possible to bind a Field to any number of
+other objects.
+
+In particular, it is always possible to bind two Fields together. Bound fields
+share a single value and trigger, so that when either field's value is changed
+the other's changes automatically with it, and when either field is triggered
+the other is triggered at the same time.
 
 This binding between the fields is weak, which allows many kinds of asociations
 to be built without requiring the programmer to explicitly clean up after them.
 
 It is also possible to release specific bindings, and to release all bindings to
-a field.
+a field. Releasing a binding usually releases all associations between the Field
+and the other object, allowing for transfer of control and garbage collection.
+
+See [Custom Bindings] for more details.
 
 ### Queries
 
 It is possible to "query" a field for information. This mechanism can be used to
 disguise or normalize the interface to just about any query/response mechanism.
 The result of a query is another Field, which will be triggered with a value
-representing that query result.
+representing that query result. Query semantics guarantee that the code making
+the query will have an opportunity to add handlers before the query result is
+triggered.
 
 If a field's "value" is executable (for example, a function), then the field's
 "response" is the result of calling the function. If the result of that call is
@@ -116,8 +125,41 @@ application. This is an excellent method for separating concerns within the
 codebase without sacrificing too much performance.
 
 The author's first use case involved separating view controller activity from
-application logic, but the mechanisms provided allow for a rich expression of a 
+application logic, but the mechanisms provided allow for a rich expression of a
 contract between any sections of a program.
+
+## Custom Bindings
+
+If you wish to add custom binding behaviors to all fields, you can use
+`Field.addBinder`. You supply two functions for your custom binding; one to
+perform a binding, and one to undo a binding. Each of these is given an
+opportunity to examine the target object and decide whether to perform the
+operation. In this way, it is possible to add useful extensions to the field's
+capabilities at runtime and make in-the-moment decisions about how exactly a
+field will be bound to a target object.
+
+Custom (un)binding functions are called in a most-recent-first order, making it
+easy to override or augment existing binding behaviors. Your functions can
+either pass, or claim completion of the operation, or chain to previous handlers
+with the same or a different target.
+
+### DOM Binding
+
+If you bind a field to a DOM node, it will have various effects depending on the
+node type:
+
+  * INPUT nodes assign values to the field when they are changed
+  * IMG nodes have their `src` field updated by the value of the field
+  * TABLE nodes display the field's value in various useful ways. The value may
+    be an object or an array, and the elements may be values or objects or
+    arrays
+  * Other nodes have their `innerHtml` attribute updated by the field value when
+    it changes.
+
+In most cases, if the Field's value is `undefined` when the binding is
+performed, it will take on the current value of the DOM node.
+
+
 
 */
 define(function(require) {
