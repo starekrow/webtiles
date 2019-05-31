@@ -159,8 +159,6 @@ node type:
 In most cases, if the Field's value is `undefined` when the binding is
 performed, it will take on the current value of the DOM node.
 
-
-
 */
 define(function(require) {
     'use strict';
@@ -367,43 +365,142 @@ define(function(require) {
         this.trigger();
     }
 
-    /**
-     * Binds this field to another field
-     * 
-     * When fields are bound together, their values, timers and trigger states
-     * are all forced to track each other. These binding associations are always
-     * "weak" in nature; if the last outstanding reference to a field is its 
-     * binding to another field, that binding is allowed to dissolve.
-     * 
-     * Any two fields may only be bound together once; binding two
-     * fields that are already bound to each other will have no effect.
-     */
-    _public.bind = function(field)
+    _static.binders = [];
+
+    _static.addBinding = function(handlers)
     {
-        if (field === this || !field) {
+        if (!handlers || (typeof handlers !== "object")) {
             return;
         }
-        if (!this._bindings) {
-            this._bindings = new WeakMap();
+        _static.binders.unshift(handlers);
+        return _static;
+    }
+
+    _static.removeBinding = function(handlers)
+    {
+        if (!handlers || (typeof handlers !== "object")) {
+            return;
         }
-        if (!this._bindings[field]) {
-            this._bindings[field] = true;
-            if (!field._bindings) {
-                field._bindings = new WeakMap();
-            }
-            field._bindings[this] = true;
+        let i = _static.binders.indexOf(handlers);
+        if (i >= 0) {
+            _static.binders.splice(i,1);
         }
+        return _static;
     }
 
     /**
-     * Removes the binding between two fields
+     * Binds this field to another field (or value)
+     *
+     * When fields are bound together, their values, timers and trigger states
+     * are all forced to track each other. These binding associations are always
+     * "weak" in nature; if the last outstanding reference to a field is its
+     * binding to another field, that binding is allowed to dissolve.
+     *
+     * Any two fields may only be bound together once; binding two fields that
+     * are already bound to each other will have no effect.
+     *
+     * The field that performs the binding will take on the value of the other
+     * field. Unless both fields' value is `undefined`, the binding field's
+     * value will be assigned and the binding field will be triggered just
+     * before it is bound to the other field.
      */
-    _public.unbind = function(field)
+    _public.bindField = function(toThing)
     {
-        if (this._bindings && this._bindings[field]) {
-            delete this._bindings[field];
-            delete field._bindings[this];
+        if (toThing instanceof Field) {
+            if (this === toThing) {
+                return true;
+            }
+            if (this._value !== undefined || toThing._value !== undefined) {
+                this.set(toThing._value);
+            }
+            if (!this._bindings) {
+                this._bindings = new WeakMap();
+            }
+            if (!this._bindings[field]) {
+                this._bindings[field] = true;
+                if (!toThing._bindings) {
+                    toThing._bindings = new WeakMap();
+                }
+                toThing._bindings[this] = true;
+            }
+        } else {
+            this.set(toThing);
         }
+        return true;
+    }
+
+    _public.unbindField = function(other)
+    {
+        if (other && typeof other === "object") {
+            if (this._bindings && this._bindings[other]) {
+                delete this._bindings[other];
+                if (other instanceof Field) {
+                    delete other._bindings[this];
+                }
+            }
+        }
+        return true;
+    }
+
+    Field.addBinding({
+        bind:       _public.bindField,
+        unbind:     _public.unbindField
+    });
+
+    /**
+     * Binds this field to another object (or value)
+     *
+     * When fields are bound together, their values, timers and trigger states
+     * are all forced to track each other. These binding associations are always
+     * "weak" in nature; if the last outstanding reference to a field is its
+     * binding to another field, that binding is allowed to dissolve.
+     *
+     * Any two fields may only be bound together once; binding two fields that
+     * are already bound to each other will have no effect.
+     *
+     * The field that performs the binding will take on the value of the other
+     * field. Unless both fields' value is `undefined`, the binding field's
+     * value will be assigned and the binding field will be triggered just
+     * before it is bound to the other field.
+     * 
+     */
+    _public.bind = function(other)
+    {
+        if (other === undefined || other === null) {
+            return this;
+        }
+        for (let handler in _static.binders) {
+            let result = handler.bind ? handler.bind(this, other) : null;
+            if (result) {
+                if (typeof result === "object") {
+                    other = result;
+                } else {
+                    return this;
+                }
+            }
+        }
+        return this;
+    }
+
+    /**
+     * Removes the binding between a field and another object
+     */
+    _public.unbind = function(other)
+    {
+        if (other === undefined || other === null) {
+            return this;
+        }
+        for (let handler in _static.binders) {
+            let result = handler.unbind ? handler.unbind(this, other) : null;
+            if (result) {
+                if (typeof result === "object") {
+                    other = result;
+                } else {
+                    return this;
+                }
+            }
+        }
+        return this;
     }
 
     /**
@@ -411,7 +508,13 @@ define(function(require) {
      */
     _public.unbindAll = function()
     {
-        this._bindings = null;
+        if (this._bindings) {
+            for (let other in this._bindings) {
+                delete other._bindings[this];
+            }
+            delete this._bindings;
+        }
+        return this;
     }
 
     /**

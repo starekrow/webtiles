@@ -14,7 +14,7 @@ To reference a named field within a FieldSet, there are two possibilities:
   * compiler lookup: myfieldset.name
 
   * string lookup: myfieldset["name"]
-  * compiler lookup: myfieldset.name
+  * compiler lookup: myfieldset.fields.name.value
 
 In order for this syntax to work, 
 
