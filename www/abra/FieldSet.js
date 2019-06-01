@@ -23,6 +23,16 @@ In order for this syntax to work,
 
 You can bind all fields in a fieldset to another fieldset. The syntax is:
 
+    FieldSet.dup(theirfieldset)
+    FieldSet.bind(myfieldset, theirfieldset)
+    FieldSet.unbind(myfieldset)
+    FieldSet.values(myfieldset)
+    FieldSet.fields(myfieldset)
+    FieldSet.keys(myfieldset)
+
+
+
+    FieldSet.bind(myfieldset, theirfieldset)
     myfieldset.$.bindAll(theirfieldset);
     FieldSet.bindFrom(theirfieldset).to(myfieldset)
     FieldSet.bindTo(myfieldset).from(theirfieldset)
@@ -48,12 +58,13 @@ define(function(require) {
 
     var FieldSet = function()
     {
-
+        this._fields = [];
+        this.fields = new Proxy(this, _static.fieldsProxy);
+        return new Proxy(this, _static.fieldSetProxy);
     }
 
     var _static = FieldSet;
     var _public = FieldSet.prototype;
-
     
     _public.set = function(dest, value)
     {
@@ -67,151 +78,124 @@ define(function(require) {
             for (var key in dest) {
                 this._assign(key, dest[key]);
             }
+        } else {
+            if (!dest) {
+                return;
+            }
+            if (typeof dest !== "string") {
+                throw new Exception("invalid field set destination");
+            }
+            this._assign(dest, value);
         }
     }
 
     _public.unbind = function(name)
     {
-        if (Array.isArray(name)) {
-
-        } else if (typeof name != "string") {
-
-        } else {
-            return this._unbind(name);
-        }
-    }
-
-    /**
-     * Binds this field to another field
-     * 
-     * Binding is an omni-directional sharing of state; any value assigned to
-     * a bound field, or event triggered on one, will be shared with all fields
-     * bound to it.
-     * 
-     * The binding itself is weak in both directions. You must arrange for 
-     * another mechanism to retain the fields themselves. Put another way,
-     * if the only living reference to a field is its binding to another field,
-     * the field will be released.
-     *  
-     */
-    _public.bind = function(field)
-    {
-        if (Array.isArray(name)) {
-
-        } else if (typeof name != "string") {
-
-        } else {
-            return this._unbind(name);
-        }
-    }
-
-    _public.on = function()
-    {
-    
-    }
-
-
-    /**
-     * Cancels any timers running on this field.
-     * 
-     * 
-     */
-    _public.stop = function()
-    {
-
-    }
-
-
-    _public.on_change = function()
-    {
-    
-    }
-
-    _public.on_assign = function()
-    {
-    
-    }
-
-    setter(_public, {
-        value: function()
-    });
-    
-    Object.defineProperty(_public,
-    'value', { set: function(val) {
-        val = Field.coerce(val, this.type);
-        if (this.assigning) {
-            this.assignNext = true;
-            this.assignNextValue = val;
+        if (!name) {
             return;
-        }
-        this.assigning = true;
-        if (val == this._value) {
-    
-        } else {
-            let event = {
-                field: this,
-                value: val,
-                previous: this._value,
+        } else if (Array.isArray(name)) {
+            foreach (el in name) {
+                this.unbind(el);
             }
-            this._value = val;
-    
-        }
-        this.assigning = false;
-        if (this.assignNext) {
-            let v2 = this.assignNextValue;
-            this.assignNextValue = null;
-            this.assignNext = false;
-            this.value = v2;
-        }
-    } });
-    
-    _public.on = function(eventName, handler)
-    {
-        if (!this.eventHandlers[eventName]) {
-            this.eventHandlers[eventName] = [];
-        }
-        let handlers = this.eventHandlers[eventName];
-        if (handler) {
-            this.eventHandlers[eventName].push(handler);
-        }
-    }
-    
-    _public.off = function(eventName, handler)
-    {
-        let handlers = this.eventHandlers[eventName];
-        if (!handlers) {
-            return;
-        }
-        let index = handlers.indexOf(handler);
-        if (index >= 0) {
-            handlers.splice(index, 1);
-        }
-    }
-    
-    /**
-     * Raises the given event against this field
-     */
-    _public.trigger = function(event, extra)
-    {
-        let evname;
-        let evdata;
-        if (typeof event == "string") {
-            evname = event;
-            evdata = extra ? extra : {};
+        } else if (typeof name === "string") {
+            return this._unbind(name);
         } else {
-            evname = event.type;
-            evdata = event;
+            // ???
         }
-    
-        setTimeout(() => {
-            let handlers = Object.keys(this.eventHandlers[evname]);
-            handlers.forEach(handler => {
-                if (false === handler.apply(this, evdata)) {
-                    break;
-                }
-            });    
-        }, 0);
     }
     
-    
-    });
+    _static.fieldsProxy = {
+        get: function(my, name)
+        {
+            if (!my._fields[name]) {
+                my._fields[name] = new Field();
+                my._fields[name].fieldSet = my;
+            }
+            return my._fields[name];
+        },
+
+        deleteProperty: function(my, name)
+        {
+            if (my._fields[name]) {
+                my._fields[name].unbindAll();
+            }
+            delete my._fields[name];
+        },
+
+        set: function(my, name, value)
+        {
+            if (!my._fields[name]) {
+                my._fields[name] = new Field(value);
+                my._fields[name].fieldSet = my;
+            } else {
+                my._fields[name].value = value;
+            }
+        },
+
+        has: function(my, name)
+        {
+            return (name in my._fields);
+        },
+
+        ownKeys: function(my)
+        {
+            return Object.keys(my._fields);
+        }
+    }
+
+    // Make it easy to use (thing in fieldset) for iteration
+    _static.fieldSetProxy = {
+        get: function(my, name)
+        {
+            if ($name === "$") {
+                return my;
+            }
+            if (!my.fields[name]) {
+                my.fields[name] = new Field();
+                my.fields[name].fieldSet = my;
+            }
+            return my.fields[name];
+        },
+
+        has: function(my, name)
+        {
+            if (typeof name !== "object") {
+                return (name in my.fields);
+            }
+            for (let k in my.fields) {
+                if (my.fields[k] === name) {
+                    return true;
+                }
+            }
+            return false;
+        },
+
+        ownKeys: function(my)
+        {
+            return Object.keys(my.fields);
+        },
+
+        set: function(my, name, value)
+        {
+            if (value instanceof FieldSet) {
+                my.fields[name] = value;
+                return;
+            }
+            if (!my.fields[name]) {
+                my.fields[name] = new Field(value);
+                my.fields[name].fieldSet = my;
+            } else {
+                my.fields[name].value = value;
+            }
+        },
+
+        deleteProperty: function(my, name)
+        {
+            if (my.fields[name]) {
+                my.fields[name].unbindAll();
+            }
+            delete my.fields[name];
+        },
+    }
+
+});

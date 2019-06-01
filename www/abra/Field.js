@@ -390,6 +390,8 @@ define(function(require) {
 
     /**
      * Binds this field to another field (or value)
+     * 
+     * This is the lowest-level, default field binding function. 
      *
      * When fields are bound together, their values, timers and trigger states
      * are all forced to track each other. These binding associations are always
@@ -450,19 +452,8 @@ define(function(require) {
     /**
      * Binds this field to another object (or value)
      *
-     * When fields are bound together, their values, timers and trigger states
-     * are all forced to track each other. These binding associations are always
-     * "weak" in nature; if the last outstanding reference to a field is its
-     * binding to another field, that binding is allowed to dissolve.
-     *
-     * Any two fields may only be bound together once; binding two fields that
-     * are already bound to each other will have no effect.
-     *
-     * The field that performs the binding will take on the value of the other
-     * field. Unless both fields' value is `undefined`, the binding field's
-     * value will be assigned and the binding field will be triggered just
-     * before it is bound to the other field.
-     * 
+     * Tries each field binding handler in turn, until one reports that the 
+     * field is bound or the last one has run.
      */
     _public.bind = function(other)
     {
@@ -505,6 +496,9 @@ define(function(require) {
 
     /**
      * Removes all bindings to this field
+     * 
+     * TODO: This is only correct for other Fields, need a way to do this for
+     * all bound objects.
      */
     _public.unbindAll = function()
     {
@@ -611,26 +605,27 @@ define(function(require) {
      * supply a `result` field in the call to the query, your supplied field
      * will be bound to the actual result field.
      *
-     * Queries are not run "inline"; they are scheduled to be run at the next
+     * Queries are not run inline; they are scheduled to be run at the next
      * available execution slot.
      *
-     * Returns the original result field.
+     * Returns the supplied result field, or a new Field instance that will
+     * be set to the result.
      */
     _public.query = function(query, result)
     {
         var value = this._value;
-        var result = new Field();
+        result = result || new Field();
         schedule(() => {
             if (typeof value == "function") {
                 let got = value(query);
                 if (got instanceof Field) {
                     result.bind(got);
-                } else if (got && got.then) {
+                } else if (got && got.then && typeof got.then === "function") {
                     got.then(value => {
                         result.set(value);
                     }, error => {
                         result.set(error);
-                    })
+                    });
                 }
             } else {
                 result.value = value;
