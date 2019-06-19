@@ -1,0 +1,15 @@
+<home-screen>
+    <app-header/>
+    <div class='app-content' ref=content>
+        <check-register></check-register>
+    </div>
+    <command-strip>
+        <command-icon icon=commands/register  set-node=check-register   target=content/>
+        <command-icon icon=commands/wallets   set-node=view-wallets     target=content/>
+        <command-icon icon-text="+"           set-node=add-transaction  target=content/>
+    </command-strip>
+    <style>
+    </style>
+    <script>
+    </script>
+</home-screen>

@@ -5,29 +5,53 @@
     <mobile-input 
         caption="Username"
         type=username
-        field=username
+        field-name=username
         help="Your username in the system"
         tooltip=""
         />
     <mobile-input 
         caption="Password"
         type=password
-        field=password
+        field-name=password
         help="Your password for the system"
         tooltip=""
         />
+    <a class=linksmall field-name=forgotPassword>Forgot Password?</a>
     <mobile-button
+        name=signin
         label="Sign In"
-        field=title_signin
+        onclick={doSignIn}
         />
     <style>
         .hero {
             width: 100%;
-
+        }
+        a.linkSmall {
+            font-size: -4pt;
+            text-decoration: none;
         }
     </style>
     <script>
-        abra.bindFields(this.node, opts.fields)
-
+        onMount() {
+            FieldSet.bind(opts.fields, this.node);
+        }
+        doSignIn() {
+            let f = opts.fields;
+            if (f.username.value == "") {
+                app.fields.modalError = {
+                    "title":   "Missing Username",
+                    "message": "You must enter a username to sign in."
+                };
+                return;
+            }
+            if (f.username.value == "") {
+                app.fields.modalError = {
+                    "title":   "Missing Password",
+                    "message": "You must enter a password to sign in."
+                };
+                return;
+            }
+            f.signin.trigger();
+        }
     </script>
 </title-screen>

@@ -31,7 +31,6 @@ You can bind all fields in a fieldset to another fieldset. The syntax is:
     FieldSet.keys(myfieldset)
 
 
-
     FieldSet.bind(myfieldset, theirfieldset)
     myfieldset.$.bindAll(theirfieldset);
     FieldSet.bindFrom(theirfieldset).to(myfieldset)
@@ -58,14 +57,39 @@ define(function(require) {
 
     var FieldSet = function()
     {
-        this._fields = [];
-        this.fields = new Proxy(this, _static.fieldsProxy);
+        this.fields = {};
         return new Proxy(this, _static.fieldSetProxy);
     }
 
     var _static = FieldSet;
     var _public = FieldSet.prototype;
-    
+
+    _static.keys = function(fs)
+    {
+        if (fs instanceof FieldSet) {
+            return Object.keys(fs);
+        } else if (fs) {
+            throw new TypeError("Not a FieldSet");
+        }
+    }
+
+    _static.unbind(fs) = function(fs)
+    {
+        if (fs instanceof Field) {
+            fs.unbind();
+        } else if (fs instanceof FieldSet) {
+            for (let name in fs) {
+                FieldSet.unbind(fs[name]);
+            }
+        } else if (fs) {
+            if (typeof fs.unbind === "function") {
+                fs.unbind();
+            } else {
+                throw new TypeError("Does not unbind");
+            }
+        }
+    }
+
     _public.set = function(dest, value)
     {
         if (value === undefined) { 
@@ -101,45 +125,6 @@ define(function(require) {
             return this._unbind(name);
         } else {
             // ???
-        }
-    }
-    
-    _static.fieldsProxy = {
-        get: function(my, name)
-        {
-            if (!my._fields[name]) {
-                my._fields[name] = new Field();
-                my._fields[name].fieldSet = my;
-            }
-            return my._fields[name];
-        },
-
-        deleteProperty: function(my, name)
-        {
-            if (my._fields[name]) {
-                my._fields[name].unbindAll();
-            }
-            delete my._fields[name];
-        },
-
-        set: function(my, name, value)
-        {
-            if (!my._fields[name]) {
-                my._fields[name] = new Field(value);
-                my._fields[name].fieldSet = my;
-            } else {
-                my._fields[name].value = value;
-            }
-        },
-
-        has: function(my, name)
-        {
-            return (name in my._fields);
-        },
-
-        ownKeys: function(my)
-        {
-            return Object.keys(my._fields);
         }
     }
 

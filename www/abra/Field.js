@@ -143,13 +143,20 @@ easy to override or augment existing binding behaviors. Your functions can
 either pass, or claim completion of the operation, or chain to previous handlers
 with the same or a different target.
 
+### Promise binding
+
+Binding a field to a Promise will cause the field to trigger when the Promise is
+resolved or rejected. The field's value will be assigned to the parameter passed
+when the Promise resolves or rejects.
+
 ### DOM Binding
 
 If you bind a field to a DOM node, it will have various effects depending on the
 node type:
 
   * INPUT nodes assign values to the field when they are changed
-  * IMG nodes have their `src` field updated by the value of the field
+  * IMG and IFRAME nodes have their `src` field updated by the value of the
+    field
   * TABLE nodes display the field's value in various useful ways. The value may
     be an object or an array, and the elements may be values or objects or
     arrays

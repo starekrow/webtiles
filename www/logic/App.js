@@ -27,29 +27,30 @@ define(function(require) {
         app.fields.api_userid.value = result.userId;
         app.fields.api_session.value = result.session;
 
-        app.fields.set({
+        FieldSet.bind(app.fields, {
             api_token:          result.token,
             api_username:       result.username,
             api_userId:         result.userId,
             api_session:        result.session
         });
+
         app.fields.api_token = result.token;
         app.fields.api_username = result.username;
         app.fields.api_userid = result.userId;
         app.fields.api_session = result.session;
     }
 
-
     _public.title = function(username)
     {
         let screen = new Screen("title");
         let sf = screen.fields;
         if (username) {
-            sf.username.set(username);
+            sf.username = username;
         }
-        app.fields.loginResult.bind(sf);
+        sf.loginToken.bind(app);
+        sf.loginResult.bind(app);
         tf.on("signin", field => {
-            Api.signin({
+            api.signin({
                 "username" => sf.username.value,
                 "password" => sf.password.value
             }).then(
@@ -98,7 +99,6 @@ define(function(require) {
     {
         let home = new Screen("home");
         let hf = home.fields;
-
     }
 
     return App;
