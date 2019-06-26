@@ -1,10 +1,17 @@
 define(function(require) {
     "use strict"
-    var Api = require("Api");
+    //var Api = require("Api");
+    var ex1 = require("riot-tag!example-1")
 
     function App()
     {
-
+        var d = document.createElement("div");
+        document.body.appendChild(d);
+        try {        
+            var tag = riot.mount(d, 'example-1')[0];
+        } catch(e) {
+            console.log( "Mount failed, " + e.toString());
+        }
     }
 
     var _public = App.prototype;
@@ -13,7 +20,6 @@ define(function(require) {
     _public.start = function()
     {
         this.fields = new FieldSet();
-        this.fields
     }
 
     _public.onLoginResult = function()
@@ -50,9 +56,9 @@ define(function(require) {
         sf.loginToken.bind(app);
         sf.loginResult.bind(app);
         tf.on("signin", field => {
-            api.signin({
-                "username" => sf.username.value,
-                "password" => sf.password.value
+            this.api.signin({
+                "username" : sf.username.value,
+                "password" : sf.password.value
             }).then(
                 result => {
                     sf.loginResult.value = result;
@@ -77,8 +83,8 @@ define(function(require) {
         let screen = new Screen("forgotPassword");
         let sf = screen.fields;
         tf.on("submit", field => {
-            Api.forgotPassword({
-                "email" => sf.email.value
+            this.api.forgotPassword({
+                "email" : sf.email.value
             }).then(
                 result => {
                     tf.set("submitted", true);
