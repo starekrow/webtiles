@@ -1,0 +1,34 @@
+=== tile ===
+
+type: screen
+background: #ddddff
+
+children:
+
+  - type: shy-header
+    height: 1.5em
+    children:
+      - type: button
+        h: 100%
+        w: 1.5em
+        icon: menu
+        field: app-menu
+
+      - type: text
+        text: ((tl)) "{month} {year}{#header}"
+        w: fill
+      - type: button
+        
+        
+    
+
+  - type: register
+    
+
+  - type: input-password
+    field: password
+    label: Password
+
+  - 
+
+

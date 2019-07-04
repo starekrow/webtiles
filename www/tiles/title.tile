@@ -1,0 +1,24 @@
+=== tile ===
+
+type: screen
+background: {background}
+
+children:
+  - type: group
+    height: 50%
+    children:
+      - type: image
+        alt: title image
+        url: 
+
+  - type: input-text
+    y: 50%
+    field: username
+    label: Username
+
+  - type: input-password
+    field: password
+    label: Password
+
+
+

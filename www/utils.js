@@ -9,7 +9,7 @@ define(function(require) {
         //return Object.toString.apply(val) === "[object Array]";
     }
     
-\    Utils.isObject = function(val)
+    Utils.isObject = function(val)
     {
         return val && typeof(val) === "object";
     }
