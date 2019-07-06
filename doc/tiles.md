@@ -28,56 +28,134 @@ developers should keep in mind that the set of possible display attributes can
 be expected to increase over time, and avoid naming custom properties after
 obvious visual concepts.
 
-The assigned attributes are explained below.
+Basic Display Node Attributes:
 
+#### align
+#### alt-text
 #### anchor
+##### align-h
+##### align-v
 #### background
+##### background-color
+##### background-image
+##### background-opacity
 #### border
-#### break
-#### color
-#### children
-#### field
-#### flow
-#### flow-align
-#### flow-direction
-#### font
-
-flags:
-##### +/- bold
-##### +/- italic
-##### +/- underline
-##### +/- <size>
-##### <size>
-##### <name>
-
-#### 
+##### border-color
+##### border-radius
+##### border-left
+##### border-type
+##### border-width
+##### ? border-opacity
+##### ? color-tint
+#### cursor
 #### height
-#### h-align
-#### image
 #### margin
 #### opacity
 #### padding
-#### text
+##### padding-left
+##### padding-right
+##### padding-top
+##### padding-bottom
+##### padding-outer
+#### skin
+#### tooltip
 #### type
-#### v-align
 #### width
+
+Inherited Display Node Attributes:
+
+##### color
+#### font
+##### font-weight
+##### font-decoration
+##### font-style
+##### font-size
+##### Font Flags
+###### +/- bold
+###### +/- italic
+###### +/- underline
+###### +/- <size>
+###### <size>
+###### <name>
+##### flow-align
+##### flow-direction
+
+Display Node Hooks:
+
+#### on-mouseover
+#### on-mouseout
+#### on-touchstart
+#### on-touchend
+#### on-click
+#### on-before-render
+#### on-render
+#### on-before-update
+#### on-update
+
+Placed Node Attributes:
+
 #### x
 #### y
-#### 
-#### 
-#### 
-#### 
-#### 
-#### 
-#### 
-#### 
-#### 
-#### 
+
+Grouping Node Attributes:
+
+#### children
+#### flow
+
+Flow Node Attributes:
+
+#### break
+##### margin-before
+##### margin-after
+##### padding-before
+##### padding-after
+
+Static node Attributes:
+
+#### icon
+#### image
+#### html
+#### markdown
+#### markdown-bold
+#### markdown-italic
+#### markdown-code
+#### markdown-header-N
+#### markdown-blockquote
+#### markdown-link
+#### markdown-block
+#### markdown-bullet
+#### text
+
+Viewport Node Attributes:
+
+#### scroll-x
+
+pixel position or "end" or "start"
+
+#### canvas
+
+#### content
+
+For a `viewport` node, the `content` attribute can be a display node or a 
+list of display nodes. The node(s) will be placed on a virtual canvas that the 
+viewport can scroll over to show the contents of.
+
+Content nodes have different defaults for the following attributes:
+
+  * max-width - the max-width attribute of a content node starts as `100%`
+
+Content child sizes are relative to the viewport node.
+
+#### scroll-y
+#### scroll-x-max
+#### scroll-y-max
 #### 
 
 
 
 
+
+#### field
 
 
 

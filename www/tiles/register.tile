@@ -1,0 +1,26 @@
+=== tile ===
+
+type: ui/scroller
+      
+children:
+  empty_register:
+    type: ui/frame-overlay
+    text: ((tl)) There are no entries to display
+    margin-top: 2em
+    flow-align: center
+    skin: faded-text
+    hide: true
+  refresh:
+    type: ui/scroller-elastic-header
+    flow:
+      - text: ((tx)) Synchronize Ledger
+      - type: ui/v-spacer
+        height: 0.5em
+      - icon: reload
+        icon-size: 1.66em
+    skin: faded-text
+
+on-scroll: ((js)) |
+
+
+init: ((js)) |

@@ -7,7 +7,8 @@ flow:
   - type: register
     padding-top: 1.5em
     padding-bottom: 1.5em
-    on-scroll: 
+    on-scroll: ((js)) |
+      
     flow:
       text: ((tl)) There are no entries to display
       margin-top: 2em
@@ -36,10 +37,9 @@ children:
         h: 100%
         border: .05em solid
     
-  - type: overlay
-    h-align: center
-    v-align: center
-    flow-align: center
+  - type: ui/overlay
+    align: center
+    align-flow: center
     flow:
       - text: Loading...
         break: before, after
