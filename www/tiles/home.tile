@@ -15,14 +15,23 @@ children:
         field: app-menu
 
       - type: text
+        text: =title
         text: ((tl)) "{month} {year}{#header}"
         w: fill
-      - type: button
-        
-        
+
+      - type: button-image
+        image: =user.profile.image
+        border-radius: 50%
+        margin: .25em
+        height: 100%
+        border: .05em solid
     
 
   - type: register
+    padding-top: 1.5em
+    padding-bottom: 1.5em
+    on-scroll: 
+    
     
 
   - type: input-password
@@ -31,4 +40,5 @@ children:
 
   - 
 
-
+init: |
+  
