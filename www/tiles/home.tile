@@ -3,42 +3,48 @@
 type: screen
 background: #ddddff
 
-children:
+flow:
+  - type: register
+    padding-top: 1.5em
+    padding-bottom: 1.5em
+    on-scroll: 
+    flow:
+      text: ((tl)) There are no entries to display
+      margin-top: 2em
+      flow-align: center
+      ref: 
 
-  - type: shy-header
+children:
+  - type: ui/shy-header
     height: 1.5em
-    children:
-      - type: button
+    flow:
+      - type: button-icon
         h: 100%
         w: 1.5em
         icon: menu
+        padding: .25em
         field: app-menu
 
       - type: text
         text: =title
-        text: ((tl)) "{month} {year}{#header}"
         w: fill
 
       - type: button-image
         image: =user.profile.image
         border-radius: 50%
-        margin: .25em
-        height: 100%
+        outer-padding: .25em
+        h: 100%
         border: .05em solid
     
+  - type: overlay
+    h-align: center
+    v-align: center
+    flow-align: center
+    flow:
+      - text: Loading...
+        break: before, after
+      - image: images/activity-spinner.gif
 
-  - type: register
-    padding-top: 1.5em
-    padding-bottom: 1.5em
-    on-scroll: 
-    
-    
 
-  - type: input-password
-    field: password
-    label: Password
-
-  - 
-
-init: |
+init: ((js))
   
