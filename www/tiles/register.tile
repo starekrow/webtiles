@@ -1,24 +1,31 @@
 === tile ===
 
 type: ui/scroller
-      
-children:
-  empty_register:
-    type: ui/frame-overlay
-    text: ((tl)) There are no entries to display
-    margin-top: 2em
-    flow-align: center
-    skin: faded-text
-    hide: true
-  refresh:
-    type: ui/scroller-elastic-header
+# default scroller width = 100%
+# default scroller canvas-width = 100%
+# default scroller height = fill
+# default scroller canvas-height = auto
+# default scroller 
+
+flow:
+  - type: ui/scroller-elastic-header
+    on-reveal: ((js))
+      fields.headerPercent.value = (event.portionVisible * 100)|0;
     flow:
-      - text: ((tx)) Synchronize Ledger
+      - text: ((tl)) Synchronize Ledger
       - type: ui/v-spacer
         height: 0.5em
       - icon: reload
         icon-size: 1.66em
-    skin: faded-text
+      - text: ((tl)) {headerPercent}%
+        hide: true
+        trigger: ((js)) this.unhide()
+  - text: ((tl)) There are no entries to display
+    font-size: 1.5em
+    margin: 30% 2em 0 2em
+    flow-align: center
+    skin-type: faded-text
+    hide: true
 
 on-scroll: ((js)) |
 

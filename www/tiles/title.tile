@@ -1,24 +1,71 @@
 === tile ===
 
 type: screen
-background: {background}
+skin-name: screens.title
 
-children:
-  - type: group
+flow:
+  - image: images/title.jpg
+    alt-text: ((tl)) title screen for {applicationName}
+    image-fit: fill
     width: 100%
     height: 50%
-    children:
-      - type: image
-        alt: title image
-        url: images/title.jpg
 
-  - type: input-text
+  - type: ui/input-text
     field: username
-    label: Username
+    label: ((tl)) Username
 
-  - type: input-password
+  - type: ui/input-password
     field: password
-    label: Password
+    label: ((tl)) Password
+
+  - type: ui/button
+    margin-top: 2em
+    height: 2.5em
+    font-size: 1.5em
+    text: Sign In
+    border-radius: 1.25em
+    action: doSignIn
+
+  - type: ui/link
+    margin-top: 1em
+    font-size: 0.75em
+    field-trigger: forgotPassword
+    text: ((tl)) Forgot your password?
+
+children:
+  footer:
+    type: ui/footer-bar
+    font-size: 0.625em
+    flow:
+      - link: ((tl)) Terms of Service
+        margin-after: 2em
+        field-trigger: showTermsOfService
+        flow-wrap: none
+      - link: ((tl)) Privacy Policy
+        field-trigger: showPrivacyPolicy
+        margin-after: 2em
+        flow-wrap: none
+      - text: ((tl)) Copyright (C) {year|2019} David O'Riva
+        flow-wrap: none
+
+triggers:
+  signInError:
+    type: ui/alert-modal
+    title: ((tl)) Sign-In Failed
+    text: ((tl)) Looks like that didn't work. The problem seems to be "{signInError.message|unknown}".
+    on-trigger: ((js)) |
+      refs.loading.hide();
+    on-acknowledge: ((js)) |
+      refs.password.focus();
+  doSignIn: ((js)) |
+    ref: loading
+
+flash:
+  loading:
+    type: overlay
+    
+
+  
 
 
 
