@@ -46,8 +46,17 @@ define(function(require) {
         app.fields.api_session = result.session;
     }
 
-    _public.title = function(username)
+    _public.title = function(fields)
     {
+        let prefs = fields.sessions;
+        let sf = new FieldSet({
+            api:            fields.api,
+            username:       prefs.savedUsername,
+            password:       "",
+            forgotPassword: field => {
+                app.forgotPassword(sf.username);
+            }
+        });
         let screen = new Screen("title");
         let sf = screen.fields;
         if (username) {

@@ -48,6 +48,8 @@ children:
       - text: ((tl)) Copyright (C) {year|2019} David O'Riva
         flow-wrap: none
 
+
+
 triggers:
   signInError:
     type: ui/alert-modal
@@ -58,12 +60,18 @@ triggers:
     on-acknowledge: ((js)) |
       refs.password.focus();
   doSignIn: ((js)) |
-    ref: loading
+    refs.loading.show();
 
 flash:
   loading:
-    type: overlay
+    type: ui/overlay
+    flow:
+      - text: ((tl)) Signing in...
+        break: after
+      - margin-top: 2em
+        image: activity-spinner.gif
     
+
 
   
 
