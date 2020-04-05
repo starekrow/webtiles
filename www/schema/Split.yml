@@ -1,0 +1,11 @@
+type: Record
+
+columns:
+  id:               recordid
+  transaction:      Transaction
+  wallet:           Wallet
+  amount:           int64         search
+
+
+def record Transaction
+def 

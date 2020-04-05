@@ -1,65 +1,61 @@
 define(function(require) {
     "use strict"
     //var Api = require("Api");
-    var titleTile = require("tile!title")
+    var registerTile = require("tile!register")
+    var txOneLine = require("tile!txOneLine")
+    var txTwoLine = require("tile!txTwoLine")
+    var txView = require("tile!txView")
+    var txEdit = require("tile!txEdit")
+    var loadingOverlay = require("tile!loadingOverlay")
 
-    function Title(fields)
+    function Register(fields)
     {
-        let injected        = inject();
-        let prefs           = injected.Preferences.data,
-            Screen          = injected.Screen;
+        let injected        = inject.me,
 
-        Screen.Main.preload();
-        Screen.ForgotPassword.preload();
 
-        injected.viewGraph.append(new titleTile({
-            username:       prefs.username,
-            password:       "",
-            forgotPassword: function() {
-                this.busy = true;
-                Screen.ForgotPassword.render({
-                    username: this.username
-                });
-            },
-            signIn:         function(value) {
-                this.loading = true;
-                let username = this.username;
-                injected.api.signin({
-                    "username" : username,
-                    "password" : this.password
-                }).then(
-                    result => {
-                        prefs.username = username;
-                        published.loginResult = result;
-                        if (result.goto) {
-                            Screen.render(result.goto, result.data);
-                        } else {
-                            Screen.Main.render({});                            
-                        }
-                    },
-                    error => {
-                        this.loginError = error;
-                    }
-                );
-            },
-            termsLink:      function() {
-                this.busy = true;
-                creen.TermsOfUse.render({});
-            },
-            privacyLink:    function() {
-                this.busy = true;
-                Screen.PrivacyPolicy.render({});
-            }
-        }));
+        this.Tile            = injected.Tile;
+
+        let fields          = new injected.FieldSet();
+
+        let tile = new Tile(registerTile, {
+
+        }).draw(node);
+
+        fields.transactions = txloaded;
+        fields.
+
+        fields.bindMethods(this.handlers);
+        fields.bindHandlers(this);
+        
+        fields.viewTransaction.handle(field => {
+            let vt = new Tile(txView, {
+                tx: transactions.byId[field.value];
+            }).draw();
+        });
+        fields.editTransaction.handle(field => {
+            let vt = new Tile(txEdit, {
+                tx: transactions.byId[field.value];
+            }).draw();
+        });
+        fields.updateTransaction.handle(field => {
+            let update = field.value;
+            //let tx = transactions.byId[update.id];
+            transactions.update(update.id, update.changes);
+        });
+        fields.deleteTransaction.handle(field => {
+            transactions.remove(field.value);
+        });
     }
 
-    var _public = Title.prototype;
-    var _static = Title;
+    var _public = Register.prototype;
+    var _static = Register;
+    var _handlers = _public.handlers = {};
 
-    _public.start = function()
+    _handlers.viewTransaction = function(field)
     {
-        titleTile
-        this.fields = new FieldSet();
+        let vt = new this.Tile(txView, {
+            tx: transactions.byId[field.value];
+        }).draw();
     }
 
     _public.onLoginResult = function()

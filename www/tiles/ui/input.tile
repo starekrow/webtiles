@@ -1,0 +1,24 @@
+type:
+  - ui/base/flowable-container
+  - ui/base/border
+  - ui/base/text
+  - ui/base/flow-frame    # margins, border, padding
+  - ui/base/text
+  - ui/base/text
+  - ui/base/text
+  - ui/base/text
+  - 
+
+mixin:
+-tile-features:
+  - flowable-frame
+  - margin
+  - border
+  - background
+  - 
+
+on:
+  click: focus
+  drag: cursor
+  hold: cursor
+layout:

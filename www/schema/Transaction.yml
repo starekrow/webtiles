@@ -1,0 +1,45 @@
+type:                 Record
+
+columns:
+  id:                 recordid
+  time:               time    = NOW     index
+  created:            time    = NOW
+  modified:           time    = NOW
+  memo:               text    = null    search
+  payee:              string  = null    search
+  cleared:            bool    = false
+  reconciled:         bool    = false
+  hidden:             bool    = true
+  flags:              int     = 0
+  checkImage:         url     = null
+  checkNumber:        string  = null    search
+  source:             data    = null
+  issuer:             alias(payee)
+
+refs:
+  splits:             Split.transaction
+
+enums:
+  types:
+    - normal
+    - paycheck
+    - placeholder
+    - ghost
+
+def record Transaction
+  recordId        id
+  time            time          = NOW
+  time            created       = NOW
+  time            modified      = NOW
+  text            memo          (search)
+  string          payee         (search)
+  bool            cleared
+  bool            reconciled
+  bool            hidden
+  url             checkImage
+  string          checkNumber
+  data            source
+  string          reference     (search)
+
+  def index
+    

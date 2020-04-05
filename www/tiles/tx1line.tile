@@ -1,0 +1,43 @@
+type: ui/table-row
+height: 1.2em
+width: 100%
+
+cell-border-between:
+  min-width: 1px
+  width: 0.05em
+
+cells:
+  - field: reconciled
+    type: ui/checkbox
+    icon:
+      checked: bullet
+      unchecked: blank
+
+  - field: displayDate
+    type: ui/date-field
+    format: M/D
+    width: 10%
+    max-width: 5em
+
+    width:
+      default: 10%
+      max: 5em
+
+    width-default: 10%
+    width-max: 5em
+
+  - field: payee
+    type: ui/input
+    text-align: left
+
+
+  - field: displayAmount
+    type: ui/number-fixed
+    format: n.ff
+    min-width: 3em
+    min-width: auto
+    max-width: 6em
+
+  - field: cleared
+    unchecked-icon: check-box-empty
+    checked-icon: check-box-checked

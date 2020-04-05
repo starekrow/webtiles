@@ -31,36 +31,19 @@ define(function(require) {
     var Field           = require("Field");
     var FieldSet        = require("FieldSet");
     var Schema          = require("Schema");
-    var Record          = require("Record");
+    var Record          = require("model/Record");
 
     var SuperClass = Record;
     function Transaction(fields)
     {
-        SuperClass.call(this, fields, {
-            time:               Schema.kTime | Schema.kNow,
-            created:            Schema.kTime | Schema.kNow,
-            modified:           Schema.kTime | Schema.kNow,
-            memo:               Schema.kText,
-            checkNumber:        Schema.kInt,
-            payee:              Schema.kString,
-            issuer:             Schema.kString,
-            detail:             Schema.kDetail,
-            amount:             Schema.kDouble | Schema.k0,
-            split:              Schema.kBool,
-            splitFrom:          Schema.kRecordId,
-            cleared:            Schema.kBool,
-            reconciled:         Schema.kBool,
-            flags:              Schema.kInt,
-            wallet:             Schema.kRecordId,
-            checkImage:         Schema.kUrl,
-        });
+        SuperClass.call(this, fields, this.schema);
     }
 
     var _static = Transaction;
     var _public = _static.prototype = Object.create(SuperClass.prototype);
     _public.constructor = Transaction;
 
-
+    _public.
 
     return Transaction;
 })

@@ -12,15 +12,15 @@ flow:
     on-reveal: ((js))
       fields.headerPercent.value = (event.portionVisible * 100)|0;
     flow:
-      - text: ((tl)) Synchronize Ledger
+      - text: ((t)) Synchronize Ledger
       - type: ui/v-spacer
         height: 0.5em
       - icon: reload
         icon-size: 1.66em
-      - text: ((tl)) {headerPercent}%
+      - text: ((t)) {headerPercent}%
         hide: true
         trigger: ((js)) this.unhide()
-  - text: ((tl)) There are no entries to display
+  - text: ((t)) There are no entries to display
     font-size: 1.5em
     margin: 30% 2em 0 2em
     flow-align: center
