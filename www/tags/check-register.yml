@@ -1,0 +1,24 @@
+
+nodes:
+  - type: nav-header
+    shy: true
+    nodes:
+      - type: nav-left-icon
+        icon: menu
+        trigger: main-menu
+      - type: nav-title
+        text: .navTitle
+      - type: nav-right-icon
+        icon: profile
+        trigger: profile-menu
+  - type: view
+    height: fill
+    width: 100%
+    ref: register-body
+  - type: nav-palette
+    nodes:
+      - type: nav-command
+        icon: plus
+        trigger: add-transaction
+      - type: nav-command
+        icon: 
